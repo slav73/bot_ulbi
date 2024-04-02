@@ -1,6 +1,8 @@
 const TelegramApi = require('node-telegram-bot-api')
 const { gameOptions, againOptions } = require('./options.js')
-
+const sequelize = require('./db')
+const UserModel = require('./models')
+  
 const token = '7117839535:AAHenLpmuU1XihpH9mqPKgWmNQaS-gMkVx8'
 
 const bot = new TelegramApi(token, {polling: true})
@@ -14,7 +16,15 @@ const startGame = async (chatId) => {
   await bot.sendMessage(chatId, 'Отгадывай', gameOptions)
 }
 
-const start = () => {
+const start = async () => {
+
+  try {
+    await sequelize.authenticate()
+    await sequelize.sync()
+  } catch(e) {
+    console.log('Goдключение у БД не получилось')
+  }
+
   bot.on('message', async msg => {
     const text = msg.text
     const chatId = msg.chat.id
